@@ -1,0 +1,44 @@
+import { useAuth } from '@/hooks/auth-context';
+import { authMiddleware } from '@/middlewares/authMiddleware';
+import { createFileRoute } from '@tanstack/react-router'
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import z from 'zod'
+import { User2 } from 'lucide-react';
+
+const PageSearch = z.object({
+  name: z.string().optional()
+})
+
+export const Route = createFileRoute('/_private/dashboard/$id')({
+  component: RouteComponent,
+  beforeLoad: authMiddleware,
+  validateSearch: (search) => PageSearch.parse(search),
+  head: () => ({
+    meta: [{ title: 'Post novo | viste como' }]
+  }),
+})
+
+function RouteComponent() {
+  const { id } = Route.useParams();
+  const { user } = useAuth();
+  const search = Route.useSearch();
+
+
+  return (
+    <div>
+      <h1>{user?.email}</h1>
+      <h1>{user?.phoneNumber}</h1>
+
+      <Avatar>
+        <AvatarImage src={user?.photoURL || "/icon"} />
+        <AvatarFallback>
+          <User2 size={15} />
+        </AvatarFallback>
+      </Avatar>
+
+      <h1>
+        {id} - {search.name || "Indisponivel"}
+      </h1>
+    </div>
+  )
+}
